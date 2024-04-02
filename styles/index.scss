@@ -1,0 +1,29 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  background: black;
+}
+
+#teaser{
+  height: 100vh;
+  margin: auto;
+  display: block;
+}
+
+#timer{
+  position: absolute;  top: 1em;
+  left: 1em;
+  color: white;
+  font-size: 20px;
+}
+
+img{
+  width: 250px;
+}
+.video{
+  width: 250px;
+}
