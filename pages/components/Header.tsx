@@ -1,7 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
+import Video from "@/pages/components/Video";
 
-const Header = () => {
+const Header: FC<{setIsVideoLoaded: (isLoaded: boolean) => void}> = ({setIsVideoLoaded}) => {
   const [timerNum, setTimerNum] = useState(19)
+
+  const handleIsLoadedVideo = () => {
+    setIsVideoLoaded(true);
+
+  }
+
   useEffect(() => {
     const timer = setInterval(() => {
       setTimerNum((prevSeconds) => {
@@ -14,12 +21,14 @@ const Header = () => {
     }, 1000);
     return () => clearInterval(timer);
   },[])
+
   return (
-    <header>
+    <header className={"slide header"}>
       <div id={"timer"}>{timerNum}</div>
-      <video id={'teaser'} autoPlay muted loop>
-        <source src="/teaser%202024/teaser.mp4" type="video/mp4"/>
-      </video>
+      {/*<video onCanPlay={handleIsLoadedVideo} id={'teaser'} autoPlay muted loop>*/}
+      {/*  <source src="/media/teaser%202024/teaser.mp4" type="video/mp4"/>*/}
+      {/*</video>*/}
+      <Video isLoaded={handleIsLoadedVideo} src={"/media/teaser%202024/teaser.mp4"}/>
     </header>
   );
 };

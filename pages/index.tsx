@@ -2,22 +2,31 @@ import Head from "next/head";
 import {Inter} from "next/font/google";
 import {useEffect, useState} from "react";
 import Header from "@/pages/components/Header";
+import Slide from "@/pages/components/Slide";
 
 const inter = Inter({subsets: ["latin"]});
 
-const imageExt = ['jpg', 'jpeg', 'png', 'gif', 'webp']
-const videoExt = ['mp4', 'mov', 'avi', 'mkv']
 
 export default function Home() {
-  const [fileList, setFileList] = useState<string[]>([])
+  const [fileList, setFileList] = useState<string[][][]>([])
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
+  const [loadedData, setLoadedData] = useState(0)
+
+
   useEffect(() => {
     fetch("/api/getPublicList").then(res => res.json()).then(res => {
-      setFileList(res.files)
+      for (let i = 0; i < res.files.length; i += 5) {
+        let chunk = res.files.slice(i, i + 5);
+        setFileList(prevState => [...prevState, chunk])
+      }
     })
   }, []);
 
-  console.log(fileList)
+  const handleLoadData = () => {
+    setLoadedData(prevState => prevState + 1)
+  }
 
+  console.log(isVideoLoaded)
   return (
     <>
       <Head>
@@ -26,20 +35,17 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" href="/favicon.ico"/>
       </Head>
-      <Header/>
+      <Header setIsVideoLoaded={setIsVideoLoaded}/>
       <main className={`${inter.className}`}>
-        {
-          fileList.length > 0 &&
-          fileList.map(item => <div>
-            {
-              imageExt.includes(item.split(".")[1].toLowerCase())
-                ? <img src={`/${item}`} alt=""/>
-                :       <video className={'video'} autoPlay muted loop>
-                  <source src={`/${item}`} type="video/mp4"/>
-                </video>
-            }
-          </div>)
-        }
+        {fileList.map((fileGroup, index) => {
+          const threshold = index * 5;
+          if (fileGroup.length > 0 && isVideoLoaded && loadedData >= threshold) {
+            return fileGroup.map(item => (
+              <Slide key={item[0]} setIsLoadData={handleLoadData} fileNames={item} />
+            ));
+          }
+          return null;
+        })}
       </main>
     </>
   );
