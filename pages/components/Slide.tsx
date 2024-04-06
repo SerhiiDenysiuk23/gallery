@@ -17,7 +17,7 @@ const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
   useEffect(() => {
     if (isLoaded.length === fileNames.length)
       setIsLoadData()
-  }, [isLoaded]);
+  }, [isLoaded, fileNames.length, setIsLoadData]);
 
   const handleIsLoaded = () => {
     setIsLoaded(prevState => [...prevState, true])
