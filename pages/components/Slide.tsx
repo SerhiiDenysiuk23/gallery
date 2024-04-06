@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import Img from "@/pages/components/Img";
 import Video from "@/pages/components/Video";
 
@@ -13,28 +13,38 @@ interface Props {
 
 const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
   const [isLoaded, setIsLoaded] = useState<boolean[]>([])
+  const [fileList, setFileList] = useState<string[]>(fileNames ?? [])
 
   useEffect(() => {
-    if (isLoaded.length === fileNames.length)
-      setIsLoadData()
-  }, [isLoaded, fileNames.length, setIsLoadData]);
+    setFileList(fileNames)
+  }, [fileNames]);
+
+  useEffect(() => {
+    if (fileList && isLoaded.length === fileList.length) {
+      setIsLoadData();
+    }
+  }, [isLoaded.length]);
 
   const handleIsLoaded = () => {
     setIsLoaded(prevState => [...prevState, true])
   }
 
   return (
-    <div style={fileNames.length > 1
+    <div style={fileList.length > 1
       ? {justifyContent: "space-between"}
       : {justifyContent: "center"}}
          className={"slide"}>
       {
-        fileNames.map(item =>
+        fileList.map(item => {
+          const fileParts = item.split(".");
+          const fileExtension = fileParts.length > 1 ? fileParts[fileParts.length - 1].toLowerCase() : '';
 
-            imageExt.includes(item.split(".")[1].toLowerCase())
-              ? <Img key={item} maxWidth={100 / fileNames.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
-              : <Video key={item} maxWidth={100 / fileNames.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
-        )
+          return (
+            imageExt.includes(fileExtension)
+              ? <Img key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
+              : <Video key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
+          )
+        })
       }
     </div>
   );

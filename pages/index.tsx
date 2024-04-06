@@ -15,6 +15,9 @@ export default function Home() {
 
   useEffect(() => {
     fetch("/api/getPublicList").then(res => res.json()).then(res => {
+      if (!res.files)
+        return
+
       for (let i = 0; i < res.files.length; i += 5) {
         let chunk = res.files.slice(i, i + 5);
         setFileList(prevState => [...prevState, chunk])

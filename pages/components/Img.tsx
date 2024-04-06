@@ -1,4 +1,5 @@
 import React, {FC, useState} from 'react';
+import Image from "next/image";
 
 interface Props {
   isLoaded: () => void
@@ -19,6 +20,7 @@ const Img: FC<Props> = ({isLoaded, src, maxWidth}) => {
 
   return (
     <img
+      loading={"lazy"}
       style={orientation === "Landscape"
         ? {height: "auto", width: "100%", maxWidth: `${maxWidth ?? 100}%`}
         : {height: "100%", width: "auto", maxWidth: `${maxWidth ?? 100}%`}}
