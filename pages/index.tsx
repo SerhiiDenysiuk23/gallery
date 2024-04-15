@@ -1,8 +1,9 @@
 import Head from "next/head";
 import {Inter} from "next/font/google";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import Header from "@/pages/components/Header";
 import Slide from "@/pages/components/Slide";
+import React from "react";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -11,25 +12,72 @@ export default function Home() {
   const [fileList, setFileList] = useState<string[][][]>([])
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [loadedData, setLoadedData] = useState(0)
-
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     fetch("/api/getPublicList").then(res => res.json()).then(res => {
       if (!res.files)
         return
 
+      const arr: string[][][] = []
       for (let i = 0; i < res.files.length; i += 5) {
         let chunk = res.files.slice(i, i + 5);
-        setFileList(prevState => [...prevState, chunk])
+        arr.push(chunk)
       }
+      setFileList(arr)
     })
   }, []);
+
+  useEffect(() => {
+    const handleWheel = throttle((e: WheelEvent) => {
+      // e.preventDefault();
+      const direction = e.deltaY > 0 ? 1 : -1;
+      const windowHeight = window.innerHeight;
+      const currentSectionIndex = sectionRefs.current.findIndex((section) => {
+        if (!section) return false;
+        const { top, bottom } = section.getBoundingClientRect();
+        return top <= windowHeight / 2 && bottom >= windowHeight / 2;
+      });
+      const nextSectionIndex = currentSectionIndex + direction;
+      if (nextSectionIndex >= 0 && nextSectionIndex < sectionRefs.current.length) {
+        const nextSection = sectionRefs.current[nextSectionIndex];
+        console.log(nextSectionIndex)
+        if (nextSection) {
+          window.scrollTo({
+            top: window.scrollY + nextSection.getBoundingClientRect().top,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }, 2000);
+
+    function throttle(func: Function, limit: number) {
+      let inThrottle: boolean;
+      return function (this: any, ...args: any[]) {
+        const context = this;
+        if (!inThrottle) {
+          func.apply(context, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
+    }
+
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault()
+      handleWheel(e)
+    }, {passive: false});
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
 
   const handleLoadData = () => {
     setLoadedData(prevState => prevState + 1)
   }
 
-  console.log(isVideoLoaded)
   return (
     <>
       <Head>
@@ -40,12 +88,26 @@ export default function Home() {
       </Head>
       <Header setIsVideoLoaded={setIsVideoLoaded}/>
       <main className={`${inter.className}`}>
-        {fileList.map((fileGroup, index) => {
-          const threshold = index * 5;
+        {fileList.map((fileGroup, groupIndex) => {
+          const threshold = groupIndex * 5;
           if (fileGroup.length > 0 && isVideoLoaded && loadedData >= threshold) {
-            return fileGroup.map(item => (
-              <Slide key={item[0]} setIsLoadData={handleLoadData} fileNames={item} />
-            ));
+            return fileGroup.map((item, itemIndex) => {
+              const refIndex = groupIndex * 5 + itemIndex;
+              return (
+                <React.Fragment key={item[0]}>
+                <div
+                  ref={(el) => {
+                    sectionRefs.current[refIndex] = el
+                  }}
+                   style={item.length > 1
+                  ? {justifyContent: "space-between"}
+                  : {justifyContent: "center"}}
+                  className={"slide"}>
+                  <Slide setIsLoadData={handleLoadData} fileNames={item}/>
+                </div>
+                </React.Fragment>
+              );
+            });
           }
           return null;
         })}

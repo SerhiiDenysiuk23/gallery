@@ -30,10 +30,7 @@ const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
   }
 
   return (
-    <div style={fileList.length > 1
-      ? {justifyContent: "space-between"}
-      : {justifyContent: "center"}}
-         className={"slide"}>
+      <>
       {
         fileList.map(item => {
           const fileParts = item.split(".");
@@ -46,7 +43,7 @@ const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
           )
         })
       }
-    </div>
+      </>
   );
 };
 

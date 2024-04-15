@@ -5,24 +5,34 @@ import type { NextApiRequest, NextApiResponse } from "next";
 const regexStr = /(\d+)\s*[A-Z]\.(\w+)/i
 
 function groupItems(list: string[]): string[][] {
+  const result: string[][] = []
+  const map: { [key: string]: number } = {}
 
-  return  list.reduce((acc: string[][], item, index ) => {
-    const match = item.match(regexStr);
-    const subItems = item.split(' ')
+  for (let i = 0; i < list.length; i++){
+    const match = list[i].match(regexStr);
+    const subItems = list[i].split(' ')
+    const key = subItems[0]
 
-
-    if (match && index > 0 && list[index-1].includes(subItems[0])){
-
-      acc[acc.length - 1].push(item)
+    if (map[key] !== undefined) {
+      if (match) {
+        result[map[key]].push(list[i])
+      }
+    } else {
+      map[key] = result.length
+      result.push([list[i]])
     }
-    else {
-      return [...acc, [item]]
-    }
-    return acc
-  }, [])
+  }
+
+  return result
 }
 
-
+function compareFn(a: string, b: string) {
+  const matchA = a.match(/\d+/);
+  const matchB = b.match(/\d+/);
+  const numA = matchA ? parseInt(matchA[0]) : 0;
+  const numB = matchB ? parseInt(matchB[0]) : 0;
+  return numA - numB;
+}
 
 export default function handler(
   req: NextApiRequest,
@@ -38,6 +48,8 @@ export default function handler(
       const ext = path.extname(file).toLowerCase();
       return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.mp4', '.mov', '.avi', '.mkv'].includes(ext);
     });
+
+    mediaFiles.sort(compareFn)
     return res.status(200).json({ files: groupItems(mediaFiles) });
   });
 }
