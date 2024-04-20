@@ -1,11 +1,8 @@
 import Head from "next/head";
-import {Inter} from "next/font/google";
 import {useEffect, useRef, useState} from "react";
 import Header from "@/pages/components/Header";
 import Slide from "@/pages/components/Slide";
 import React from "react";
-
-const inter = Inter({subsets: ["latin"]});
 
 
 export default function Home() {
@@ -13,6 +10,7 @@ export default function Home() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [loadedData, setLoadedData] = useState(0)
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [timerNum, setTimerNum] = useState(19)
 
   useEffect(() => {
     fetch("/api/getPublicList").then(res => res.json()).then(res => {
@@ -29,8 +27,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (timerNum > 0){
+      const preventDefault = (e: WheelEvent) => {
+        e.preventDefault()
+      }
+      window.addEventListener('wheel', preventDefault, {passive: false});
+      return () => {
+        window.removeEventListener('wheel', preventDefault);
+      };
+    }
+
+
     const handleWheel = throttle((e: WheelEvent) => {
-      // e.preventDefault();
       const direction = e.deltaY > 0 ? 1 : -1;
       const windowHeight = window.innerHeight;
       const currentSectionIndex = sectionRefs.current.findIndex((section) => {
@@ -71,7 +79,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
-  }, []);
+  }, [timerNum]);
 
 
   const handleLoadData = () => {
@@ -86,8 +94,8 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" href="/favicon.ico"/>
       </Head>
-      <Header setIsVideoLoaded={setIsVideoLoaded}/>
-      <main className={`${inter.className}`}>
+      <Header timerNum={timerNum} setTimerNum={setTimerNum} setIsVideoLoaded={setIsVideoLoaded}/>
+      <main>
         {fileList.map((fileGroup, groupIndex) => {
           const threshold = groupIndex * 5;
           if (fileGroup.length > 0 && isVideoLoaded && loadedData >= threshold) {

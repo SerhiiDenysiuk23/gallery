@@ -4,9 +4,10 @@ interface Props {
   isLoaded: () => void
   src: string,
   maxWidth?: number
+  isAutoplay?: boolean
 }
 
-const Video: FC<Props> = ({src, maxWidth, isLoaded}) => {
+const Video: FC<Props> = ({src, maxWidth, isLoaded, isAutoplay = true}) => {
   const [orientation, setOrientation] = useState<string>("");
 
   const handleLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -21,7 +22,7 @@ const Video: FC<Props> = ({src, maxWidth, isLoaded}) => {
     <video style={orientation === "Landscape"
       ? {height: "auto", width: "100%", maxWidth: `${maxWidth ?? 100}%`}
       : {height: "100%", width: "auto", maxWidth: `${maxWidth ?? 100}%`}}
-           onCanPlay={handleLoaded} className={'video'} autoPlay muted loop>
+           onCanPlay={handleLoaded} className={'video'} autoPlay={isAutoplay} muted loop>
       <source src={src} type="video/mp4"/>
     </video>
   );
