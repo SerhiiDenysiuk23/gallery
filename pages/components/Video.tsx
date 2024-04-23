@@ -1,28 +1,65 @@
-import React, {FC, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 
 interface Props {
   isLoaded: () => void
   src: string,
   maxWidth?: number
-  isAutoplay?: boolean
+  isLoop?: boolean
+  isMuted?: boolean
+  isPlay?: boolean
 }
 
-const Video: FC<Props> = ({src, maxWidth, isLoaded, isAutoplay = true}) => {
+const Video: FC<Props> = ({
+                            src,
+                            maxWidth,
+                            isLoaded,
+                            isPlay,
+                            isLoop = true,
+                            isMuted = true
+                          }) => {
   const [orientation, setOrientation] = useState<string>("");
+  const videoRef = useRef<HTMLVideoElement>(null)
 
-  const handleLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    isLoaded()
+  useEffect(() => {
+    const videoElem = videoRef.current
 
-    const target = e.target as HTMLVideoElement;
-    const orientation = target.width > target.height ? 'Landscape' : 'Portrait';
+    if (!videoElem)
+      return
+
+    const orientation = videoElem.width > videoElem.height ? 'Landscape' : 'Portrait';
     setOrientation(orientation);
-  }
+    if (isPlay || isMuted)
+      videoElem.play()
+
+  }, [videoRef.current, isPlay]);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    const checkBuffered = () => {
+      const videoEl = videoRef.current;
+      if (videoEl) {
+        const bufferEnd = videoEl.buffered.end(videoEl.buffered.length - 1);
+        const duration = videoEl.duration;
+        if (bufferEnd >= duration) {
+          isLoaded()
+          clearInterval(intervalId);
+        }
+      }
+    };
+
+    intervalId = setInterval(checkBuffered, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
-    <video style={orientation === "Landscape"
+    <video ref={videoRef} style={orientation === "Landscape"
       ? {height: "auto", width: "100%", maxWidth: `${maxWidth ?? 100}%`}
       : {height: "100%", width: "auto", maxWidth: `${maxWidth ?? 100}%`}}
-           onCanPlay={handleLoaded} className={'video'} autoPlay={isAutoplay} muted loop>
+           className={'video'} muted={isMuted} loop={isLoop}>
       <source src={src} type="video/mp4"/>
     </video>
   );

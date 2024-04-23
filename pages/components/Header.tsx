@@ -1,20 +1,27 @@
-import React, {FC, useEffect} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import Video from "@/pages/components/Video";
 
 interface Props {
   setTimerNum: React.Dispatch<React.SetStateAction<number>>
-  timerNum: number
   setIsVideoLoaded: (isLoaded: boolean) => void
 }
 
-const Header: FC<Props> = ({setIsVideoLoaded, timerNum, setTimerNum}) => {
+const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
+  const [isClicked, setIsClicked] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   const handleIsLoadedVideo = () => {
     setIsVideoLoaded(true);
+  }
 
+  const handlePlayTeaser = () => {
+    setIsClicked(true)
   }
 
   useEffect(() => {
+
+    if (!isClicked)
+      return
 
     const timer = setInterval(() => {
       setTimerNum((prevSeconds) => {
@@ -27,12 +34,18 @@ const Header: FC<Props> = ({setIsVideoLoaded, timerNum, setTimerNum}) => {
     }, 1000);
     return () => clearInterval(timer);
 
-  },[])
+  }, [isClicked])
 
   return (
     <header className={"slide header"}>
-      <div id={"timer"}>{timerNum}</div>
-      <Video isLoaded={handleIsLoadedVideo} src={"/media/teaser%202024/teaser.mp4"}/>
+      {
+        !isClicked &&
+        <div className={"teaser-text teaser-text__click-to-start"} onClick={handlePlayTeaser}>NOLOVE</div>
+      }
+      <div className={'wrapper'}>
+        <Video isPlay={isClicked} isMuted={false} isLoop={false} isLoaded={handleIsLoadedVideo}
+               src={"/media/teaser%202024/teaser.mov"}/>
+      </div>
     </header>
   );
 };

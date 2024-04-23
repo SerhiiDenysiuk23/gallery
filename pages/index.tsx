@@ -27,7 +27,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (timerNum > 0){
+    if (timerNum > 0) {
       const preventDefault = (e: WheelEvent) => {
         e.preventDefault()
       }
@@ -43,7 +43,7 @@ export default function Home() {
       const windowHeight = window.innerHeight;
       const currentSectionIndex = sectionRefs.current.findIndex((section) => {
         if (!section) return false;
-        const { top, bottom } = section.getBoundingClientRect();
+        const {top, bottom} = section.getBoundingClientRect();
         return top <= windowHeight / 2 && bottom >= windowHeight / 2;
       });
       const nextSectionIndex = currentSectionIndex + direction;
@@ -81,7 +81,6 @@ export default function Home() {
     };
   }, [timerNum]);
 
-
   const handleLoadData = () => {
     setLoadedData(prevState => prevState + 1)
   }
@@ -94,7 +93,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" href="/favicon.ico"/>
       </Head>
-      <Header timerNum={timerNum} setTimerNum={setTimerNum} setIsVideoLoaded={setIsVideoLoaded}/>
+      {
+        timerNum > 0 &&
+        <Header setTimerNum={setTimerNum} setIsVideoLoaded={setIsVideoLoaded}/>
+      }
       <main>
         {fileList.map((fileGroup, groupIndex) => {
           const threshold = groupIndex * 5;
@@ -103,16 +105,16 @@ export default function Home() {
               const refIndex = groupIndex * 5 + itemIndex;
               return (
                 <React.Fragment key={item[0]}>
-                <div
-                  ref={(el) => {
-                    sectionRefs.current[refIndex] = el
-                  }}
-                   style={item.length > 1
-                  ? {justifyContent: "space-between"}
-                  : {justifyContent: "center"}}
-                  className={"slide"}>
-                  <Slide setIsLoadData={handleLoadData} fileNames={item}/>
-                </div>
+                  <div
+                    ref={(el) => {
+                      sectionRefs.current[refIndex] = el
+                    }}
+                    style={item.length > 1
+                      ? {justifyContent: "space-between"}
+                      : {justifyContent: "center"}}
+                    className={`slide ${timerNum > 0 ? "hidden" : ""}`}>
+                    <Slide setIsLoadData={handleLoadData} fileNames={item}/>
+                  </div>
                 </React.Fragment>
               );
             });
