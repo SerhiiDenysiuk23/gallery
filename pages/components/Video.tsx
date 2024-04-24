@@ -6,16 +6,20 @@ interface Props {
   maxWidth?: number
   isLoop?: boolean
   isMuted?: boolean
+  isAutoPlay?: boolean
   isPlay?: boolean
+  setLoadPercent?: (percent: number) => void
 }
 
 const Video: FC<Props> = ({
                             src,
                             maxWidth,
                             isLoaded,
-                            isPlay,
+                            isAutoPlay,
+                            setLoadPercent,
                             isLoop = true,
-                            isMuted = true
+                            isMuted = true,
+                            isPlay = true
                           }) => {
   const [orientation, setOrientation] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -28,10 +32,15 @@ const Video: FC<Props> = ({
 
     const orientation = videoElem.width > videoElem.height ? 'Landscape' : 'Portrait';
     setOrientation(orientation);
-    if (isPlay || isMuted)
+
+
+    if (!isPlay)
+      return;
+
+    if (isAutoPlay || isMuted)
       videoElem.play()
 
-  }, [videoRef.current, isPlay]);
+  }, [videoRef.current, isAutoPlay]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -41,6 +50,11 @@ const Video: FC<Props> = ({
       if (videoEl) {
         const bufferEnd = videoEl.buffered.end(videoEl.buffered.length - 1);
         const duration = videoEl.duration;
+        const loadedPercentage = (bufferEnd / duration) * 100;
+
+        if (setLoadPercent)
+          setLoadPercent(loadedPercentage)
+
         if (bufferEnd >= duration) {
           isLoaded()
           clearInterval(intervalId);
@@ -54,6 +68,18 @@ const Video: FC<Props> = ({
       clearInterval(intervalId);
     };
   }, []);
+
+  useEffect(() => {
+    const videoElem = videoRef.current
+
+    if (!videoElem)
+      return
+
+    if (isPlay)
+      videoElem.play()
+    else
+      videoElem.pause()
+  }, [videoRef.current, isPlay]);
 
   return (
     <video ref={videoRef} style={orientation === "Landscape"
