@@ -82,7 +82,7 @@ const Video: FC<Props> = ({
   }, [videoRef.current, isPlay]);
 
   return (
-    <video ref={videoRef} style={orientation === "Landscape"
+    <video preload={"auto"} ref={videoRef} style={orientation === "Landscape"
       ? {height: "auto", width: "100%", maxWidth: `${maxWidth ?? 100}%`}
       : {height: "100%", width: "auto", maxWidth: `${maxWidth ?? 100}%`}}
            className={'video'} muted={isMuted} loop={isLoop}>
