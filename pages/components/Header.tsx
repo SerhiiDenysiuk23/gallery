@@ -11,8 +11,6 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
   const [loadPercent, setLoadPercent] = useState(0)
   const [isPlay, setIsPlay] = useState(false)
 
-  const wrapperRef = useRef<HTMLDivElement>(null)
-
   const handleIsLoadedVideo = () => {
     setIsVideoLoaded(true);
   }
@@ -23,7 +21,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
   useEffect(() => {
 
-    if (!isClicked)
+    if (!isClicked || loadPercent < 100)
       return
 
     const timer = setInterval(() => {
@@ -59,7 +57,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
         <div className={'wrapper'}>
           <Video isPlay={isPlay} setLoadPercent={setLoadPercent} isAutoPlay={isClicked} isMuted={false} isLoop={false}
                  isLoaded={handleIsLoadedVideo}
-                 src={"/media/teaser%202024/teaser.mov"}/>
+                 src={"/api/getTeaser"}/>
         </div>
 
     </header>
