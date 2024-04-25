@@ -89,7 +89,7 @@ const Video: FC<Props> = ({
       loop={isLoop}
       autoPlay={isAutoPlay}
     >
-      {src && <source src={src} type="video/mp4" />}
+      <source src={src} type="video/mp4" />
     </video>
   );
 };
