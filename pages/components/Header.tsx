@@ -10,6 +10,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
   const [isClicked, setIsClicked] = useState(false)
   const [loadPercent, setLoadPercent] = useState(0)
   const [isPlay, setIsPlay] = useState(false)
+  const [blobUrl, setBlobUrl] = useState("")
 
   const handleIsLoadedVideo = () => {
     setIsVideoLoaded(true);
@@ -19,9 +20,10 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
     setIsClicked(true)
   }
 
+  // Запуск таймеру
   useEffect(() => {
 
-    if (!isClicked || loadPercent < 100)
+    if (!isClicked)
       return
 
     const timer = setInterval(() => {
@@ -37,10 +39,40 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
   }, [isClicked])
 
+  // Запуск відео
   useEffect(() => {
     if (loadPercent >= 100)
       setIsPlay(true)
   }, [loadPercent]);
+
+  useEffect(() => {
+    // fetch("/api/getTeaser")
+    //   .then(response => response.blob())
+    //   .then(blob => {
+    //     const url = URL.createObjectURL(blob)
+    //     setBlobUrl(url)
+    //   })
+
+
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "/api/getTeaser");
+    xhr.responseType = "blob";
+
+    xhr.onprogress = function(event) {
+      const percentComplete = (event.loaded / event.total) * 100;
+      console.log(`Загрузка: ${percentComplete}%`);
+    };
+
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const url = URL.createObjectURL(xhr.response);
+        setBlobUrl(url);
+      }
+    };
+
+    xhr.send();
+  }, []);
 
 
   return (
@@ -54,11 +86,11 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
         isClicked && loadPercent < 100 &&
         <div className={"teaser-text"}>{loadPercent.toFixed(0)}%</div>
       }
-        <div className={'wrapper'}>
-          <Video isPlay={isPlay} setLoadPercent={setLoadPercent} isAutoPlay={isClicked} isMuted={false} isLoop={false}
-                 isLoaded={handleIsLoadedVideo}
-                 src={"/api/getTeaser"}/>
-        </div>
+      <div className={'wrapper'}>
+        <Video isPlay={isPlay} setLoadPercent={setLoadPercent} isAutoPlay={isClicked} isMuted={false} isLoop={false}
+               isLoaded={handleIsLoadedVideo}
+               src={blobUrl}/>
+      </div>
 
     </header>
   );

@@ -22,9 +22,9 @@ const Video: FC<Props> = ({
                             isLoaded
                           }) => {
   const [orientation, setOrientation] = useState<string>("");
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Запуск відео
   useEffect(() => {
     const videoElem = videoRef.current;
 
@@ -33,27 +33,7 @@ const Video: FC<Props> = ({
     }
   }, [isPlay]);
 
-  useEffect(() => {
-    const fetchAndSetVideo = async () => {
-      try {
-        const response = await fetch(src);
-        const blob = await response.blob();
-        const videoBlobUrl = URL.createObjectURL(blob);
-        setVideoSrc(videoBlobUrl);
-      } catch (error) {
-        console.error("Failed to fetch video:", error);
-      }
-    };
-
-    fetchAndSetVideo();
-
-    return () => {
-      if (videoSrc) {
-        URL.revokeObjectURL(videoSrc);
-      }
-    };
-  }, []);
-
+  // Встановлення орієнтації
   useEffect(() => {
     const videoElem = videoRef.current;
 
@@ -61,12 +41,10 @@ const Video: FC<Props> = ({
 
     const orientation = videoElem.width > videoElem.height ? 'Landscape' : 'Portrait';
     setOrientation(orientation);
+  }, [videoRef.current]);
 
-    if (isAutoPlay || isMuted) {
-      videoElem.play();
-    }
-  }, [videoRef.current, isAutoPlay]);
 
+  // Відслідковування буфуризації
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -109,8 +87,9 @@ const Video: FC<Props> = ({
       className={'video'}
       muted={isMuted}
       loop={isLoop}
+      autoPlay={isAutoPlay}
     >
-      {videoSrc && <source src={videoSrc} type="video/mp4" />}
+      {src && <source src={src} type="video/mp4" />}
     </video>
   );
 };
