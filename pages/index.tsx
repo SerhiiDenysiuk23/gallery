@@ -84,7 +84,6 @@ export default function Home() {
   const handleLoadData = () => {
     setLoadedData(prevState => prevState + 1)
   }
-  console.log(timerNum)
 
   return (
     <>

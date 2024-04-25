@@ -39,10 +39,8 @@ export default function handler(
   res: NextApiResponse,
 ) {
   const directoryPath = path.join(process.cwd(), 'public/media');
-  fs.readdir(directoryPath, function (err, files) {
-    if (err) {
-      return res.status(500).json({ error: err });
-    }
+  try {
+    const files = fs.readdirSync(directoryPath);
     // Фильтруем файлы, оставляя только видео и фотографии
     const mediaFiles = files.filter(file => {
       const ext = path.extname(file).toLowerCase();
@@ -51,5 +49,7 @@ export default function handler(
 
     mediaFiles.sort(compareFn)
     return res.status(200).json({ files: groupItems(mediaFiles) });
-  });
+  } catch (err) {
+    return res.status(500).json({ error: err });
+  }
 }

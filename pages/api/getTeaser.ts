@@ -2,6 +2,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+}
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const videoPath = path.resolve('./public/media/teaser 2024/teaser.mov');
