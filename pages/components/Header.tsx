@@ -11,10 +11,6 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
   const [isPlay, setIsPlay] = useState(false)
   const [blobUrl, setBlobUrl] = useState("")
 
-  const handleIsLoadedVideo = () => {
-    setIsVideoLoaded(true);
-  }
-
   const handlePlayTeaser = () => {
     setIsPlay(true)
   }
@@ -24,6 +20,8 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
     if (!isPlay || loadPercent < 100)
       return
+
+    setIsVideoLoaded(true);
 
     const timer = setInterval(() => {
       setTimerNum((prevSeconds) => {
@@ -38,6 +36,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
   }, [isPlay, loadPercent])
 
+  // Preload video
   useEffect(() => {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", "/api/getTeaser");
@@ -80,7 +79,6 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
       {
         isPlay && <Video isPlay={isPlay} isAutoPlay={false} isMuted={false} isLoop={false}
-                         isLoaded={handleIsLoadedVideo}
                          src={blobUrl}/>
       }
 

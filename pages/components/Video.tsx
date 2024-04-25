@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
 
 interface Props {
-  isLoaded: () => void
+  isLoaded?: () => void
   src: string,
   maxWidth?: number
   isLoop?: boolean
