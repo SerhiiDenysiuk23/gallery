@@ -63,38 +63,38 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
           const url = URL.createObjectURL(xhr.response);
           setBlobUrl(url);
         } else {
-          console.error(`Ошибка загрузки: ${xhr.status} ${xhr.statusText}`);
+          console.error(`Load error: ${xhr.status} ${xhr.statusText}`);
           if (attempt < maxAttempts) {
             attempt++;
-            console.log(`Попытка ${attempt} из ${maxAttempts}...`);
+            console.log(`Try ${attempt} of ${maxAttempts}...`);
             getFile();
           } else {
-            console.error('Превышено максимальное количество попыток');
+            console.error('Request limit exceeded');
           }
         }
       };
 
       xhr.onerror = function () {
-        console.error('Произошла ошибка при выполнении запроса.');
+        console.error('An error occurred while executing the request.');
         if (attempt < maxAttempts) {
           attempt++;
-          console.log(`Попытка ${attempt} из ${maxAttempts}...`);
+          console.log(`Try ${attempt} of ${maxAttempts}...`);
           getFile();
         } else {
-          console.error('Превышено максимальное количество попыток');
+          console.error('Request limit exceeded');
         }
       };
 
       try {
         xhr.send();
       } catch (error) {
-        console.error(`Ошибка отправки запроса: ${error}`);
+        console.error(`Request error: ${error}`);
         if (attempt < maxAttempts) {
           attempt++;
-          console.log(`Попытка ${attempt} из ${maxAttempts}...`);
+          console.log(`Try ${attempt} of ${maxAttempts}...`);
           getFile();
         } else {
-          console.error('Превышено максимальное количество попыток');
+          console.error('Request limit exceeded');
         }
       }
     }
