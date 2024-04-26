@@ -76,6 +76,44 @@ const Video: FC<Props> = ({
     };
   }, []);
 
+
+  // Автовоспроизведение при видимости
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const videoElem = videoRef.current;
+
+        if (videoElem) {
+          const opacity = window.getComputedStyle(videoElem).opacity;
+
+          if (entry.isIntersecting && opacity !== '0') {
+            const playPromise = videoElem.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(error => {
+                console.error(error);
+              });
+            }
+          } else {
+            setTimeout(() => {
+              videoElem.pause();
+            }, 1000);
+          }
+        }
+      });
+    });
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
+      }
+    };
+  }, [videoRef.current]);
+
+
   return (
     <video
       preload={"auto"}
@@ -87,7 +125,6 @@ const Video: FC<Props> = ({
       className={'video'}
       muted={isMuted}
       loop={isLoop}
-      autoPlay={isAutoPlay}
     >
       <source src={src} type="video/mp4" />
     </video>
