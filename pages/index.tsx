@@ -1,8 +1,10 @@
 import Head from "next/head";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import Header from "@/pages/components/Header";
 import Slide from "@/pages/components/Slide";
 import React from "react";
+import throttle from "@/services/throttle";
+import {navEvent} from "@/services/navEvents";
 
 
 export default function Home() {
@@ -11,6 +13,8 @@ export default function Home() {
   const [loadedData, setLoadedData] = useState(0)
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [timerNum, setTimerNum] = useState(19)
+  let startY: number
+
 
   useEffect(() => {
     fetch("/api/getPublicList").then(res => res.json()).then(res => {
@@ -26,60 +30,64 @@ export default function Home() {
     })
   }, []);
 
+
+  // Nav Events
+  const preventDefault = useCallback((e: WheelEvent | KeyboardEvent) => {
+    if (e instanceof WheelEvent || (e instanceof KeyboardEvent && ['ArrowUp', 'ArrowDown'].includes(e.key))) {
+      e.preventDefault();
+    }
+  }, []);
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    startY = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchMove = useCallback(throttle((e: TouchEvent) => {
+    navEvent(e, sectionRefs, startY)
+  }, 1000), []);
+
+  const handleWheel = useCallback(throttle((e: WheelEvent) => {
+    navEvent(e, sectionRefs)
+  }, 2000), []);
+
+  const handleKeyDown = useCallback(throttle((e: KeyboardEvent) => {
+    navEvent(e, sectionRefs)
+  }, 1000), []);
+
+
   useEffect(() => {
     if (timerNum > 0) {
-      const preventDefault = (e: WheelEvent) => {
-        e.preventDefault()
-      }
       window.addEventListener('wheel', preventDefault, {passive: false});
-      return () => {
-        window.removeEventListener('wheel', preventDefault);
-      };
+      window.addEventListener('keydown', preventDefault, {passive: false});
+    } else {
+      window.removeEventListener('wheel', preventDefault);
+      window.removeEventListener('keydown', preventDefault);
     }
 
-
-    const handleWheel = throttle((e: WheelEvent) => {
-      const direction = e.deltaY > 0 ? 1 : -1;
-      const windowHeight = window.innerHeight;
-      const currentSectionIndex = sectionRefs.current.findIndex((section) => {
-        if (!section) return false;
-        const {top, bottom} = section.getBoundingClientRect();
-        return top <= windowHeight / 2 && bottom >= windowHeight / 2;
-      });
-      const nextSectionIndex = currentSectionIndex + direction;
-      if (nextSectionIndex >= 0 && nextSectionIndex < sectionRefs.current.length) {
-        const nextSection = sectionRefs.current[nextSectionIndex];
-        console.log(nextSectionIndex)
-        if (nextSection) {
-          window.scrollTo({
-            top: window.scrollY + nextSection.getBoundingClientRect().top,
-            behavior: 'smooth'
-          });
-        }
-      }
-    }, 2000);
-
-    function throttle(func: Function, limit: number) {
-      let inThrottle: boolean;
-      return function (this: any, ...args: any[]) {
-        const context = this;
-        if (!inThrottle) {
-          func.apply(context, args);
-          inThrottle = true;
-          setTimeout(() => inThrottle = false, limit);
-        }
-      };
-    }
+    window.addEventListener('touchstart', handleTouchStart, {passive: false});
+    window.addEventListener('touchmove', (e) => {
+      e.preventDefault()
+      handleTouchMove(e)
+    }, {passive: false});
 
     window.addEventListener('wheel', (e) => {
       e.preventDefault()
       handleWheel(e)
     }, {passive: false});
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+        handleKeyDown(e);
+      }
+    }, {passive: false});
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [timerNum]);
+  }, [timerNum, preventDefault, handleTouchStart, handleTouchMove, handleWheel, handleKeyDown]);
 
   const handleLoadData = () => {
     setLoadedData(prevState => prevState + 1)
