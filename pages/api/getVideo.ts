@@ -10,7 +10,7 @@ export const config = {
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const videoPath = path.resolve('./public/media/teaser 2024/teaser.mov');
+    const videoPath = path.resolve(`./public/media/${req.body.replace(/['"]+/g, '')}`);
 
     if (!fs.existsSync(videoPath)) {
       res.status(404).json({ error: 'Video not found' });

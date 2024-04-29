@@ -1,5 +1,6 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
 import Video from "@/pages/components/Video";
+import TeaserVideo from "@/pages/components/TeaserVideo";
 
 interface Props {
   setTimerNum: React.Dispatch<React.SetStateAction<number>>
@@ -9,7 +10,6 @@ interface Props {
 const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
   const [loadPercent, setLoadPercent] = useState(0)
   const [isPlay, setIsPlay] = useState(false)
-  const [blobUrl, setBlobUrl] = useState("")
 
   const handlePlayTeaser = () => {
     setIsPlay(true)
@@ -17,7 +17,6 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
   // Запуск таймеру
   useEffect(() => {
-
     if (!isPlay || loadPercent < 100)
       return
 
@@ -36,72 +35,6 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
 
   }, [isPlay, loadPercent])
 
-  // Preload video
-  useEffect(() => {
-    let attempt = 0;
-    const maxAttempts = 5;
-
-    function getFile() {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", "/api/getTeaser");
-      xhr.responseType = "blob";
-
-      let prevLoaded = 0;
-      let prevTotal = 0;
-      xhr.onprogress = function (event) {
-        if (event.loaded !== prevLoaded || event.total !== prevTotal) {
-          const percentComplete = (event.loaded / event.total) * 100;
-          setLoadPercent(percentComplete);
-
-          prevLoaded = event.loaded;
-          prevTotal = event.total;
-        }
-      };
-
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          const url = URL.createObjectURL(xhr.response);
-          setBlobUrl(url);
-        } else {
-          console.error(`Load error: ${xhr.status} ${xhr.statusText}`);
-          if (attempt < maxAttempts) {
-            attempt++;
-            console.log(`Try ${attempt} of ${maxAttempts}...`);
-            getFile();
-          } else {
-            console.error('Request limit exceeded');
-          }
-        }
-      };
-
-      xhr.onerror = function () {
-        console.error('An error occurred while executing the request.');
-        if (attempt < maxAttempts) {
-          attempt++;
-          console.log(`Try ${attempt} of ${maxAttempts}...`);
-          getFile();
-        } else {
-          console.error('Request limit exceeded');
-        }
-      };
-
-      try {
-        xhr.send();
-      } catch (error) {
-        console.error(`Request error: ${error}`);
-        if (attempt < maxAttempts) {
-          attempt++;
-          console.log(`Try ${attempt} of ${maxAttempts}...`);
-          getFile();
-        } else {
-          console.error('Request limit exceeded');
-        }
-      }
-    }
-
-// Начать первую попытку
-    getFile();
-  }, []);
 
   return (
     <header className={"slide header"}>
@@ -115,10 +48,8 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
         <div className={"teaser-text teaser-text__click-to-start"} onClick={handlePlayTeaser}>NOLOVE</div>
       }
 
-      {
-        isPlay && <Video isPlay={isPlay} isAutoPlay={false} isMuted={false} isLoop={false}
-                         src={blobUrl}/>
-      }
+
+      <TeaserVideo isPlay={isPlay} setLoadPercent={setLoadPercent}/>
 
 
     </header>

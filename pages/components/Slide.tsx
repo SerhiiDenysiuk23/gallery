@@ -29,6 +29,8 @@ const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
     setIsLoaded(prevState => [...prevState, true])
   }
 
+
+
   return (
       <>
       {
@@ -39,7 +41,7 @@ const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
           return (
             imageExt.includes(fileExtension)
               ? <Img key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
-              : <Video key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
+              : <Video key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`${item}`}/>
           )
         })
       }
