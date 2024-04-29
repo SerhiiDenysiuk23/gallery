@@ -9,7 +9,7 @@ import {navEvent} from "@/services/navEvents";
 
 export default function Home() {
   const [fileList, setFileList] = useState<string[][][]>([])
-  const [isVideoLoaded, setIsVideoLoaded] = useState(true)
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [loadedData, setLoadedData] = useState(0)
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [timerNum, setTimerNum] = useState(19)
@@ -101,10 +101,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" href="/favicon.ico"/>
       </Head>
-      {/*{*/}
-      {/*  timerNum > 0 &&*/}
-      {/*  <Header setTimerNum={setTimerNum} setIsVideoLoaded={setIsVideoLoaded}/>*/}
-      {/*}*/}
+      {
+        timerNum > 0 &&
+        <Header setTimerNum={setTimerNum} setIsVideoLoaded={setIsVideoLoaded}/>
+      }
       <main>
         {fileList.map((fileGroup, groupIndex) => {
           const threshold = groupIndex * 5;
@@ -120,7 +120,7 @@ export default function Home() {
                     style={item.length > 1
                       ? {justifyContent: "space-between"}
                       : {justifyContent: "center"}}
-                    className={`slide `}>
+                    className={`slide ${timerNum > 0 ? "hidden" : ""}`}>
                     <Slide setIsLoadData={handleLoadData} fileNames={item}/>
                   </div>
                 </React.Fragment>
