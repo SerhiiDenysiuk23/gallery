@@ -69,7 +69,7 @@ const Video: FC<Props> = ({
   }, [videoRef.current]);
 
   if (!blobUrl.length)
-    return null
+    return <div>Loading...</div>
 
   return (
     <video
