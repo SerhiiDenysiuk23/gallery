@@ -10,7 +10,7 @@ interface Props {
 const Img: FC<Props> = ({isLoaded, src, maxWidth}) => {
   const [orientation, setOrientation] = useState<string>("");
 
-  const handleLoaded = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const handleLoaded = (e: React.ChangeEvent<HTMLImageElement>) => {
     isLoaded()
 
     const target = e.target as HTMLImageElement;

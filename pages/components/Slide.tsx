@@ -12,40 +12,51 @@ interface Props {
 }
 
 const Slide: FC<Props> = ({fileNames, setIsLoadData}) => {
-  const [isLoaded, setIsLoaded] = useState<boolean[]>([])
-  const [fileList, setFileList] = useState<string[]>(fileNames ?? [])
+  const [isLoaded, setIsLoaded] = useState<boolean[]>([]);
+  const [fileList, setFileList] = useState<string[]>([]);
 
   useEffect(() => {
-    setFileList(fileNames)
+    setFileList(fileNames);
   }, [fileNames]);
 
   useEffect(() => {
-    if (fileList && isLoaded.length === fileList.length) {
+    if (fileList.length === isLoaded.length) {
       setIsLoadData();
     }
-  }, [isLoaded.length]);
+  }, [isLoaded.length, fileList.length]);
 
   const handleIsLoaded = () => {
-    setIsLoaded(prevState => [...prevState, true])
-  }
-
-
+    setIsLoaded((prevState) => [...prevState, true]);
+  };
 
   return (
-      <>
-      {
-        fileList.map(item => {
-          const fileParts = item.split(".");
-          const fileExtension = fileParts.length > 1 ? fileParts[fileParts.length - 1].toLowerCase() : '';
+    <>
+      {fileList.map((item) => {
+        const fileParts = item.split(".");
+        const fileExtension =
+          fileParts.length > 1 ? fileParts[fileParts.length - 1].toLowerCase() : "";
 
-          return (
-            imageExt.includes(fileExtension)
-              ? <Img key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`/media/${item}`}/>
-              : <Video key={item} maxWidth={100 / fileList.length} isLoaded={handleIsLoaded} src={`${item}`}/>
-          )
-        })
-      }
-      </>
+        return (
+          <React.Fragment key={item}>
+            {imageExt.includes(fileExtension) ? (
+              <Img
+                key={item}
+                maxWidth={100 / fileList.length}
+                isLoaded={handleIsLoaded}
+                src={`/media/${item}`}
+              />
+            ) : (
+              <Video
+                key={item}
+                maxWidth={100 / fileList.length}
+                isLoaded={handleIsLoaded}
+                src={`${item}`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </>
   );
 };
 
