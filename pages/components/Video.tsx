@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 
 interface Props {
   isLoaded?: () => void
@@ -15,16 +15,50 @@ const Video: FC<Props> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [blobUrl, setBlobUrl] = useState("")
 
+  const handleObserve = useCallback((entries: IntersectionObserverEntry[]) => {
+    const videoElem = videoRef.current;
+
+    if (!videoElem) return;
+
+    entries.forEach((entry) => {
+      if (videoElem) {
+        const opacity = window.getComputedStyle(videoElem).opacity;
+
+        if (entry.isIntersecting && opacity !== '0') {
+          const playPromise = videoElem.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(error => {
+              console.error(error);
+            });
+          }
+        } else {
+          setTimeout(() => {
+            videoElem.pause();
+          }, 1000);
+        }
+      }
+    });
+  }, []);
+
+
 
   useEffect(() => {
+    if (!src) return
+
     fetch("/api/getVideo", {method: "POST", body: src})
       .then(response => response.blob())
       .then(blob => {
         let url = URL.createObjectURL(blob);
         setBlobUrl(url)
         isLoaded && isLoaded()
+
+        return () => {
+          URL.revokeObjectURL(url);
+        };
       })
       .catch(e => console.error(e));
+
+
   }, []);
 
   useEffect(() => {
@@ -33,34 +67,13 @@ const Video: FC<Props> = ({
 
     if (!videoElem) return;
 
-    const orientation = videoElem.width > videoElem.height ? 'Landscape' : 'Portrait';
+    const orientation = videoElem.videoWidth > videoElem.videoHeight ? 'Landscape' : 'Portrait';
     setOrientation(orientation);
 
 
     // Auto Play
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (videoElem) {
-          const opacity = window.getComputedStyle(videoElem).opacity;
-
-          if (entry.isIntersecting && opacity !== '0') {
-            const playPromise = videoElem.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(error => {
-                console.error(error);
-              });
-            }
-          } else {
-            setTimeout(() => {
-              videoElem.pause();
-            }, 1000);
-          }
-        }
-      });
-    });
-
+    const observer = new IntersectionObserver(handleObserve);
     observer.observe(videoElem);
-
 
     return () => {
       observer.unobserve(videoElem);

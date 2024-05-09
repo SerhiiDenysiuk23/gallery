@@ -48,36 +48,40 @@ export default function Home() {
 
   const handleWheel = useCallback(throttle((e: WheelEvent) => {
     navEvent(e, sectionRefs)
-  }, 2000), []);
+  }, 1500), []);
 
   const handleKeyDown = useCallback(throttle((e: KeyboardEvent) => {
     navEvent(e, sectionRefs)
-  }, 1000), []);
+  }, 500), []);
 
 
   useEffect(() => {
     if (timerNum > 0) {
       window.addEventListener('wheel', preventDefault, {passive: false});
       window.addEventListener('keydown', preventDefault, {passive: false});
-    } else {
-      window.removeEventListener('wheel', preventDefault);
-      window.removeEventListener('keydown', preventDefault);
+      return () => {
+        window.removeEventListener('wheel', preventDefault);
+        window.removeEventListener('keydown', preventDefault);
+      }
     }
 
     window.addEventListener('touchstart', handleTouchStart, {passive: false});
     window.addEventListener('touchmove', (e) => {
       e.preventDefault()
       handleTouchMove(e)
+      console.log("touch")
     }, {passive: false});
 
     window.addEventListener('wheel', (e) => {
       e.preventDefault()
       handleWheel(e)
+      console.log("wheel")
     }, {passive: false});
     window.addEventListener('keydown', (e) => {
       if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault();
         handleKeyDown(e);
+        console.log("arrow")
       }
     }, {passive: false});
 
@@ -92,6 +96,7 @@ export default function Home() {
   const handleLoadData = () => {
     setLoadedData(prevState => prevState + 1)
   }
+
 
   return (
     <>
