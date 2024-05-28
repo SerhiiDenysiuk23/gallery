@@ -99,7 +99,6 @@ body {
 }
 
 .arrow{
-  color: white;
   position: absolute;
   animation: pulse 2s infinite;
   right: 1em;
@@ -108,7 +107,7 @@ body {
   opacity: 1;
   width: 30px;
   height: 30px;
-  stroke: white;
+  stroke: rgba(255, 255, 255, 0.2);
 }
 
 .preloader{
