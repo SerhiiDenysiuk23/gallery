@@ -8,8 +8,8 @@ import {navEvent} from "@/services/navEvents";
 
 
 export default function Home() {
-  const [fileList, setFileList] = useState<string[][][]>([])
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
+  const [files, setFiles] = useState<string[][]>([])
+  const [isTeaserLoaded, setIsTeaserLoaded] = useState(false)
   const [loadedData, setLoadedData] = useState(0)
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [timerNum, setTimerNum] = useState(19)
@@ -21,12 +21,7 @@ export default function Home() {
       if (!res.files)
         return
 
-      const arr: string[][][] = []
-      for (let i = 0; i < res.files.length; i += 5) {
-        let chunk = res.files.slice(i, i + 5);
-        arr.push(chunk)
-      }
-      setFileList(arr)
+      setFiles(res.files)
     })
   }, []);
 
@@ -97,6 +92,11 @@ export default function Home() {
     setLoadedData(prevState => prevState + 1)
   }
 
+  const handleSetSlideRef = (refIndex: number) => {
+    return (el: HTMLDivElement | null) => {
+      sectionRefs.current[refIndex] = el
+    }
+  }
 
   return (
     <>
@@ -108,32 +108,32 @@ export default function Home() {
       </Head>
       {
         timerNum > 0 &&
-        <Header setTimerNum={setTimerNum} setIsVideoLoaded={setIsVideoLoaded}/>
+        <Header setTimerNum={setTimerNum} setIsVideoLoaded={setIsTeaserLoaded}/>
       }
       <main>
-        {fileList.map((fileGroup, groupIndex) => {
-          const threshold = groupIndex * 5;
-          if (fileGroup.length > 0 && isVideoLoaded && loadedData >= threshold) {
-            return fileGroup.map((item, itemIndex) => {
-              const refIndex = groupIndex * 5 + itemIndex;
+        {
+          files.map((item, index) => {
+            if ((item.length > 0 && index === 0) || (item.length > 0 && isTeaserLoaded && loadedData >= index)) {
+
               return (
                 <React.Fragment key={item[0]}>
-                  <div
-                    ref={(el) => {
-                      sectionRefs.current[refIndex] = el
-                    }}
-                    style={item.length > 1
-                      ? {justifyContent: "space-between"}
-                      : {justifyContent: "center"}}
-                    className={`slide ${timerNum > 0 ? "hidden" : ""}`}>
-                    <Slide setIsLoadData={handleLoadData} fileNames={item}/>
-                  </div>
+                  <Slide
+                    isHidden={timerNum > 0}
+                    setSlideRef={handleSetSlideRef(index)}
+                    setIsLoadData={handleLoadData}
+                    fileNames={item}/>
+                  {(index === 0 && timerNum <= 0) &&
+                    <svg className={"arrow"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 4L12 20M12 20L18 14M12 20L6 14" strokeWidth="1.5" strokeLinecap="round"
+                            strokeLinejoin="round"/>
+                    </svg>
+                  }
                 </React.Fragment>
               );
-            });
-          }
-          return null;
-        })}
+            }
+            return null
+          })
+        }
       </main>
     </>
   );

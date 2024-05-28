@@ -40,7 +40,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
     <header className={"slide header"}>
       {
         loadPercent < 100 &&
-        <div className={"teaser-text"}>{loadPercent.toFixed(0)}%</div>
+        <div className={"teaser-text teaser-text__loader"}>{loadPercent.toFixed(0)}%</div>
       }
 
       {

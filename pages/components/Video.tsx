@@ -42,23 +42,31 @@ const Video: FC<Props> = ({
 
 
 
-  useEffect(() => {
-    if (!src) return
+  function fetchVideo(attempt = 1) {
+    if (attempt > 5) {
+      console.error('Request limit exceeded');
+      return;
+    }
 
     fetch("/api/getVideo", {method: "POST", body: src})
       .then(response => response.blob())
       .then(blob => {
         let url = URL.createObjectURL(blob);
         setBlobUrl(url)
-        isLoaded && isLoaded()
 
         return () => {
           URL.revokeObjectURL(url);
         };
       })
-      .catch(e => console.error(e));
+      .catch(e => {
+        console.error(e);
+        fetchVideo(attempt + 1);
+      });
+  }
 
-
+  useEffect(() => {
+    if (!src) return
+    fetchVideo()
   }, []);
 
   useEffect(() => {
@@ -81,8 +89,14 @@ const Video: FC<Props> = ({
 
   }, [videoRef.current]);
 
+  useEffect(() => {
+    if (blobUrl.length > 0)
+      isLoaded && isLoaded()
+
+  }, [blobUrl.length]);
+
   if (!blobUrl.length)
-    return <div>Loading...</div>
+    return <div className={"preloader"}>Loading...</div>
 
   return (
     <video
