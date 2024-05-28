@@ -26,7 +26,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
       setTimerNum((prevSeconds) => {
         if (prevSeconds <= 1) {
           clearInterval(timer);
-          return 0;
+          return 1;
         }
         return prevSeconds - 1;
       });
@@ -49,7 +49,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
       }
 
 
-      <TeaserVideo isPlay={isPlay} setLoadPercent={setLoadPercent}/>
+      <TeaserVideo setTimerNum={setTimerNum} isPlay={isPlay} setLoadPercent={setLoadPercent}/>
 
 
     </header>

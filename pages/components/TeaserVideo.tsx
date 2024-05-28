@@ -3,11 +3,14 @@ import React, {FC, useEffect, useRef, useState} from 'react';
 interface Props {
   isPlay: boolean
   setLoadPercent: (percent: number) => void
+  setTimerNum: (num: number) => void
 }
 
-const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent}) => {
+const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent, setTimerNum}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [blobUrl, setBlobUrl] = useState("")
+  const [isVideoEnded, setIsVideoEnded] = useState(false)
+
 
 
   // Preload video
@@ -86,6 +89,29 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent}) => {
     }
   }, [videoRef.current, isPlay]);
 
+  useEffect(() => {
+    const videoElem = videoRef.current;
+
+    if (videoElem) {
+      const handleTimeUpdate = () => {
+        if (videoElem.duration - videoElem.currentTime <= 2.5) {
+          videoElem.pause();
+          setIsVideoEnded(true)
+        }
+      };
+
+      videoElem.addEventListener('timeupdate', handleTimeUpdate);
+
+      return () => {
+        videoElem.removeEventListener('timeupdate', handleTimeUpdate);
+      };
+    }
+  }, [videoRef.current]);
+
+  const handleVideoClick = () => {
+    if (isVideoEnded)
+      setTimerNum(0)
+  }
 
   if (!blobUrl.length)
     return null
@@ -95,7 +121,8 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent}) => {
       preload={"auto"}
       ref={videoRef}
       style={{ height: "auto", width: "100%", maxWidth: "100%" }}
-      className={'video'}
+      className={`video ${isVideoEnded ? "pulsed" : ""}`}
+      onClick={handleVideoClick}
     >
       <source src={blobUrl} type="video/mp4" />
     </video>
