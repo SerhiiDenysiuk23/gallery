@@ -5,99 +5,11 @@ import Slide from "@/pages/components/Slide";
 import React from "react";
 import throttle from "@/services/throttle";
 import {navEvent} from "@/services/navEvents";
+import TeaserHideProvider from "@/pages/components/TeaserHideProvider";
+import Content from "@/pages/components/Content";
 
 
 export default function Home() {
-  const [files, setFiles] = useState<string[][]>([])
-  const [isTeaserLoaded, setIsTeaserLoaded] = useState(false)
-  const [loadedData, setLoadedData] = useState(0)
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [timerNum, setTimerNum] = useState(19)
-  let startY: number
-
-
-  useEffect(() => {
-    fetch("/api/getPublicList").then(res => res.json()).then(res => {
-      if (!res.files)
-        return
-
-      setFiles(res.files)
-    })
-  }, []);
-
-
-  // Nav Events
-  const preventDefault = useCallback((e: WheelEvent | KeyboardEvent) => {
-    if (e instanceof WheelEvent || (e instanceof KeyboardEvent && ['ArrowUp', 'ArrowDown'].includes(e.key))) {
-      e.preventDefault();
-    }
-  }, []);
-
-  const handleTouchStart = useCallback((e: TouchEvent) => {
-    startY = e.touches[0].clientY;
-  }, []);
-
-  const handleTouchMove = useCallback(throttle((e: TouchEvent) => {
-    navEvent(e, sectionRefs, startY)
-  }, 1000), []);
-
-  const handleWheel = useCallback(throttle((e: WheelEvent) => {
-    navEvent(e, sectionRefs)
-  }, 1500), []);
-
-  const handleKeyDown = useCallback(throttle((e: KeyboardEvent) => {
-    navEvent(e, sectionRefs)
-  }, 500), []);
-
-
-  useEffect(() => {
-    if (timerNum > 0) {
-      window.addEventListener('wheel', preventDefault, {passive: false});
-      window.addEventListener('keydown', preventDefault, {passive: false});
-      return () => {
-        window.removeEventListener('wheel', preventDefault);
-        window.removeEventListener('keydown', preventDefault);
-      }
-    }
-
-    window.addEventListener('touchstart', handleTouchStart, {passive: false});
-    window.addEventListener('touchmove', (e) => {
-      e.preventDefault()
-      handleTouchMove(e)
-      console.log("touch")
-    }, {passive: false});
-
-    window.addEventListener('wheel', (e) => {
-      e.preventDefault()
-      handleWheel(e)
-      console.log("wheel")
-    }, {passive: false});
-    window.addEventListener('keydown', (e) => {
-      if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
-        e.preventDefault();
-        handleKeyDown(e);
-        console.log("arrow")
-      }
-    }, {passive: false});
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, [timerNum, preventDefault, handleTouchStart, handleTouchMove, handleWheel, handleKeyDown]);
-
-  const handleLoadData = () => {
-    setLoadedData(prevState => prevState + 1)
-  }
-
-  const handleSetSlideRef = (refIndex: number) => {
-    return (el: HTMLDivElement | null) => {
-      sectionRefs.current[refIndex] = el
-    }
-  }
-
   return (
     <>
       <Head>
@@ -106,35 +18,9 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <link rel="icon" href="/favicon.ico"/>
       </Head>
-      {
-        timerNum > 0 &&
-        <Header setTimerNum={setTimerNum} setIsVideoLoaded={setIsTeaserLoaded}/>
-      }
-      <main>
-        {
-          files.map((item, index) => {
-            if ((item.length > 0 && index === 0) || (item.length > 0 && isTeaserLoaded && loadedData >= index)) {
-
-              return (
-                <React.Fragment key={item[0]}>
-                  <Slide
-                    isHidden={timerNum > 0}
-                    setSlideRef={handleSetSlideRef(index)}
-                    setIsLoadData={handleLoadData}
-                    fileNames={item}/>
-                  {(index === 0 && timerNum <= 0) &&
-                    <svg className={"arrow"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 4L12 20M12 20L18 14M12 20L6 14" strokeWidth="1.5" strokeLinecap="round"
-                            strokeLinejoin="round"/>
-                    </svg>
-                  }
-                </React.Fragment>
-              );
-            }
-            return null
-          })
-        }
-      </main>
+      <TeaserHideProvider>
+        <Content/>
+      </TeaserHideProvider>
     </>
   );
 }

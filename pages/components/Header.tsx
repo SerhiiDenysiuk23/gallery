@@ -3,11 +3,10 @@ import Video from "@/pages/components/Video";
 import TeaserVideo from "@/pages/components/TeaserVideo";
 
 interface Props {
-  setTimerNum: React.Dispatch<React.SetStateAction<number>>
   setIsVideoLoaded: (isLoaded: boolean) => void
 }
 
-const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
+const Header: FC<Props> = ({setIsVideoLoaded}) => {
   const [loadPercent, setLoadPercent] = useState(0)
   const [isPlay, setIsPlay] = useState(false)
 
@@ -16,24 +15,12 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
   }
 
   // Запуск таймеру
+
   useEffect(() => {
-    if (!isPlay || loadPercent < 100)
-      return
-
-    setIsVideoLoaded(true);
-
-    const timer = setInterval(() => {
-      setTimerNum((prevSeconds) => {
-        if (prevSeconds <= 1) {
-          clearInterval(timer);
-          return 1;
-        }
-        return prevSeconds - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-
-  }, [isPlay, loadPercent])
+    if (loadPercent >= 100){
+      setIsVideoLoaded(true)
+    }
+  }, [loadPercent]);
 
 
   return (
@@ -49,7 +36,7 @@ const Header: FC<Props> = ({setIsVideoLoaded, setTimerNum}) => {
       }
 
 
-      <TeaserVideo setTimerNum={setTimerNum} isPlay={isPlay} setLoadPercent={setLoadPercent}/>
+      <TeaserVideo isPlay={isPlay} setLoadPercent={setLoadPercent}/>
 
 
     </header>

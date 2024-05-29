@@ -49,7 +49,7 @@ const Slide: FC<Props> = ({fileNames, setIsLoadData, setSlideRef, isHidden}) => 
   return (
     <div
       style={setStyles()}
-      className={`slide ${isHidden ? "hidden" : ""}`}
+      className={`slide ${isHidden ? "hidden" : "show"}`}
       ref={(el) => {
         setSlideRef(el)
       }}>

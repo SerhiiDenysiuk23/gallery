@@ -1,15 +1,17 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useContext, useEffect, useRef, useState} from 'react';
+import {TeaserHideContext} from "@/pages/components/TeaserHideProvider";
 
 interface Props {
   isPlay: boolean
   setLoadPercent: (percent: number) => void
-  setTimerNum: (num: number) => void
 }
 
-const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent, setTimerNum}) => {
+const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [blobUrl, setBlobUrl] = useState("")
   const [isVideoEnded, setIsVideoEnded] = useState(false)
+  const {setIsTeaserHide} = useContext(TeaserHideContext)
+  const [isDestroy, setIsDestroy] = useState(false)
 
 
 
@@ -89,6 +91,7 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent, setTimerNum}) => {
     }
   }, [videoRef.current, isPlay]);
 
+  // Stop video before end
   useEffect(() => {
     const videoElem = videoRef.current;
 
@@ -109,8 +112,12 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent, setTimerNum}) => {
   }, [videoRef.current]);
 
   const handleVideoClick = () => {
-    if (isVideoEnded)
-      setTimerNum(0)
+    if (isVideoEnded) {
+      setIsDestroy(true)
+      setTimeout(() => {
+        setIsTeaserHide(true)
+      }, 1000)
+    }
   }
 
   if (!blobUrl.length)
@@ -121,7 +128,7 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent, setTimerNum}) => {
       preload={"auto"}
       ref={videoRef}
       style={{ height: "auto", width: "100%", maxWidth: "100%" }}
-      className={`video ${isVideoEnded ? "pulsed" : ""}`}
+      className={`video ${isDestroy ? "fade-hide" : isVideoEnded ? "pulsed" : ""}`}
       onClick={handleVideoClick}
     >
       <source src={blobUrl} type="video/mp4" />

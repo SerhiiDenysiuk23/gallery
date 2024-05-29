@@ -43,6 +43,9 @@ body {
   width: 100vw;
   max-width: 100vw;
   padding: 50px;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+
 
   &__elem {
     width: auto;
@@ -100,7 +103,7 @@ body {
 }
 
 .arrow{
-  position: absolute;
+  position: fixed;
   animation: pulse 2s infinite;
   right: 1em;
   bottom: 1em;
@@ -122,6 +125,10 @@ body {
   animation: pulse 3s infinite;
   cursor: pointer;
 }
+.video.fade-hide{
+  animation: hide 1s ease-in-out;
+
+}
 
 @keyframes pulse {
   0% {
@@ -132,5 +139,13 @@ body {
   }
   100% {
     opacity: 1;
+  }
+}
+@keyframes hide {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
