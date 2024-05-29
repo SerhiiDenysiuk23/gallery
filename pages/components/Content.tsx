@@ -26,7 +26,7 @@ const Content = () => {
 
   // Nav Events
   const preventDefault = useCallback((e: WheelEvent | KeyboardEvent) => {
-    if (e instanceof WheelEvent || (e instanceof KeyboardEvent && ['ArrowUp', 'ArrowDown'].includes(e.key))) {
+    if (e instanceof WheelEvent || (e instanceof KeyboardEvent && ['ArrowUp', 'ArrowDown', " "].includes(e.key))) {
       e.preventDefault();
     }
   }, []);
@@ -71,6 +71,9 @@ const Content = () => {
       console.log("wheel")
     }, {passive: false});
     window.addEventListener('keydown', (e) => {
+      if (e.key === " ")
+        e.preventDefault()
+
       if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault();
         handleKeyDown(e);
