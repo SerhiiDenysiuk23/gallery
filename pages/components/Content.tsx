@@ -117,17 +117,17 @@ const Content = () => {
                     setSlideRef={handleSetSlideRef(index)}
                     setIsLoadData={handleLoadData}
                     fileNames={item}/>
+                  {(index === 0 && isTeaserHide) &&
+                    <svg className={"arrow"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 4L12 20M12 20L18 14M12 20L6 14" strokeWidth="1.5" strokeLinecap="round"
+                            strokeLinejoin="round"/>
+                    </svg>
+                  }
                 </React.Fragment>
               );
             }
             return null
           })
-        }
-        {isTeaserHide &&
-          <svg className={"arrow"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-            <path d="M12 4L12 20M12 20L18 14M12 20L6 14" strokeWidth="1.5" strokeLinecap="round"
-                  strokeLinejoin="round"/>
-          </svg>
         }
       </main>
     </>
