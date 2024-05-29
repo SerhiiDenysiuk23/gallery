@@ -111,14 +111,14 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent}) => {
     }
   }, [videoRef.current]);
 
-  const handleVideoClick = () => {
+  useEffect(() => {
     if (isVideoEnded) {
       setIsDestroy(true)
       setTimeout(() => {
         setIsTeaserHide(true)
       }, 1000)
     }
-  }
+  }, [isVideoEnded])
 
   if (!blobUrl.length)
     return null
@@ -128,8 +128,7 @@ const TeaserVideo: FC<Props> = ({isPlay,setLoadPercent}) => {
       preload={"auto"}
       ref={videoRef}
       style={{ height: "auto", width: "100%", maxWidth: "100%" }}
-      className={`video ${isDestroy ? "fade-hide" : isVideoEnded ? "pulsed" : ""}`}
-      onClick={handleVideoClick}
+      className={`video ${isDestroy ? "fade-hide" : ""}`}
     >
       <source src={blobUrl} type="video/mp4" />
     </video>

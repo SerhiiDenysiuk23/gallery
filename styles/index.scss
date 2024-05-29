@@ -122,12 +122,13 @@ body {
 }
 
 .video.pulsed{
-  animation: pulse 3s infinite;
+  animation: pulse 1s infinite;
   cursor: pointer;
 }
 .video.fade-hide{
-  animation: hide 1s ease-in-out;
-
+  //animation: hide 1s ease-in-out;
+  transition: opacity 1s ease-in-out;
+  opacity: 0;
 }
 
 @keyframes pulse {
