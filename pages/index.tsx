@@ -1,10 +1,5 @@
 import Head from "next/head";
-import {useCallback, useEffect, useRef, useState} from "react";
-import Header from "@/pages/components/Header";
-import Slide from "@/pages/components/Slide";
 import React from "react";
-import throttle from "@/services/throttle";
-import {navEvent} from "@/services/navEvents";
 import TeaserHideProvider from "@/pages/components/TeaserHideProvider";
 import Content from "@/pages/components/Content";
 
